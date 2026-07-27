@@ -238,12 +238,25 @@ def main(argv: list[str] | None = None) -> int:
     def foreign(records: list[dict], prefix: str) -> list[dict]:
         return [r for r in records if not r["id"].startswith(prefix)]
 
-    write_jsonl(claims_path, foreign(read_jsonl(claims_path), f"claim:{NAMESPACE}.") + claims)
-    write_jsonl(evidence_path, foreign(read_jsonl(evidence_path), f"evidence:{NAMESPACE}.") + evidence)
+    def ordered(records: list[dict]) -> list[dict]:
+        # Sort by identifier so the file is a function of its content rather
+        # than of the order the importers happened to run in. Without this a
+        # refresh produces a diff of thousands of moved lines that says
+        # nothing about what actually changed.
+        return sorted(records, key=lambda r: r["id"])
+
+    write_jsonl(
+        claims_path,
+        ordered(foreign(read_jsonl(claims_path), f"claim:{NAMESPACE}.") + claims),
+    )
+    write_jsonl(
+        evidence_path,
+        ordered(foreign(read_jsonl(evidence_path), f"evidence:{NAMESPACE}.") + evidence),
+    )
 
     sources = [r for r in read_jsonl(sources_path) if r["id"] != SOURCE_ID]
     sources.append(source)
-    write_jsonl(sources_path, sources)
+    write_jsonl(sources_path, ordered(sources))
 
     print(f"imported {len(claims)} definitions")
     print(f"content hash: {source['content_hash']}")
