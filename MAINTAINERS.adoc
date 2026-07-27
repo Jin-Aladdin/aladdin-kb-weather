@@ -4,13 +4,7 @@
 :sectanchors:
 :sectlinks:
 
-Replace every placeholder in this file before the repository is published.
-
-A repository with one maintainer and one personal access token has no
-succession path. ADR-0005 requires that automation keep working without the
-continuous presence of any one person.
-
-== Human Maintainers
+== Current Maintainers
 
 [cols="1,1,1,2",options="header"]
 |===
@@ -19,48 +13,76 @@ continuous presence of any one person.
 | Role
 | Responsibility
 
-| Replace me
-| `replace-me`
+| Jin-Aladdin
+| `Jin-Aladdin`
 | owner
-| Final decision on scope, licensing and releases.
+| Scope of the pack, licensing decisions, releases, repository administration.
 
-| Replace me
-| `replace-me`
-| maintainer
-| Review of candidates, quarantine triage, gate changes.
-
-| Replace me
-| `replace-me`
+| Jin-Aladdin
+| `Jin-Aladdin`
 | security-contact
-| Security reports, key rotation, compromise response.
+| Private vulnerability reports, credential rotation, response to a
+  compromised source or automation.
 |===
 
-At least two people or roles must be able to act. One is not a maintainer set;
-it is a single point of failure.
+[WARNING]
+====
+One person currently holds every role. Nothing here fails because of that
+today, and everything here stops the day that person does.
+
+That is a succession problem, not a technical one. The specification records
+the intended arrangement in `SUCCESSION.adoc`: an organization with at least
+two owners who have independent recovery paths. Until that exists, this
+warning stays.
+====
+
+== Contact
+
+[cols="1,2",options="header"]
+|===
+| Topic
+| Route
+
+| A claim looks wrong
+| Open an issue with the claim identifier and, if you have it, what the source
+  actually says. Every claim carries an evidence locator, so a disagreement can
+  be settled by looking rather than by arguing.
+
+| A source changed or disappeared
+| Open an issue. Do not edit records to match; the update engine and the
+  provenance fields exist for exactly this.
+
+| Security issue
+| Private vulnerability reporting on this repository. Never a public issue.
+  See `SECURITY.adoc`.
+
+| Automation looks stuck
+| Check the most recent run of *Update knowledge* and *Automation health*, then
+  run *Manual recovery* with `run-all-gates`. `RECOVERY.adoc` walks through it
+  and assumes no prior context.
+|===
 
 == Machine Identities
 
-[cols="1,2,2",options="header"]
+[cols="1,2,1",options="header"]
 |===
 | Identity
 | Used for
-| Scope
+| Rotation
 
 | `GITHUB_TOKEN`
-| Validation, health reporting, candidate pull requests
-| Repository-scoped, issued per run, nothing to rotate.
-
-| Organization GitHub App
-| Cross-repository release and registry propagation
-| Replace with the app name once one exists.
+| Validation, security gate, update runs, candidate pull requests, health
+  reporting.
+| Issued per run by GitHub. Nothing to rotate.
 |===
 
-No personal access token belonging to an individual may be the permanent basis
-of this repository's automation.
+No personal access token is used by any workflow here, and none may become the
+permanent basis of this repository's automation. The declared sources answer
+unauthenticated, which is part of why they were chosen.
 
 == Secret Inventory
 
-List secret *names* and their purpose here. Never list values.
+Names and purposes only. Never values.
 
 [cols="1,2,1",options="header"]
 |===
@@ -69,19 +91,28 @@ List secret *names* and their purpose here. Never list values.
 | Rotation
 
 | _none_
-| This repository currently requires no secrets beyond the automatic
-  `GITHUB_TOKEN`.
+| This repository requires no configured secrets.
 | n/a
 |===
 
-Adding a secret means adding a row here and a rotation owner.
+Adding a secret means adding a row here, a rotation owner and a rotation
+interval. A secret with no owner is an orphan the day it is created.
 
-== Escalation
+== What a Successor Needs to Know
 
-. Automation failure: check `automation/health.json` and the open
-  `automation-health` issue.
-. Content dispute: open an issue, do not edit records silently.
-. Security concern: contact the security contact privately, see
-  `SECURITY.adoc`.
-. No maintainer reachable: see `RECOVERY.adoc` and the succession
-  documentation in the specification repository.
+The pack is data. `claims/`, `sources/`, `evidence/`, `entities/`, `concepts/`
+and `relations/` are JSON Lines: one object per line, readable with any text
+editor and any JSON parser, with no tooling from this project.
+
+The importers in `scripts/` re-import their sources. Running one against an
+unchanged source produces identical files, so an empty diff means nothing
+upstream moved. That is the intended way to refresh, and the reason they are
+committed rather than run once and forgotten.
+
+`automation/update-policy.yml` declares the live sources. They are capped at
+`propose`: a change becomes a pull request, never a direct commit. Raising that
+is a deliberate act.
+
+The validation and security gates come from `Jin-Aladdin/aladdin-spec` at a
+pinned tag. If that repository ever becomes unreachable, `RECOVERY.adoc`
+explains how to vendor the tooling locally. The pack itself needs none of it.
