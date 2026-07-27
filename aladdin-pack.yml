@@ -1,0 +1,64 @@
+schema_version: "0.1.0"
+
+pack:
+  id: aladdin-kb-weather
+  name: Aladdin Weather Knowledge Pack
+  version: "0.1.0"
+  description: >-
+    Strukturiertes, quellenbelegtes Wissen ueber Meteorologie: Fachbegriffe, Warnsysteme, Skalen, Institutionen und Vorhersagemodelle.
+  homepage: https://github.com/Jin-Aladdin/aladdin-spec
+  repository: https://github.com/Jin-Aladdin/aladdin-spec
+  keywords:
+    - aladdin
+    - weather
+    - knowledge-pack
+
+specification:
+  name: aladdin-knowledge-pack
+  version: "0.1.0"
+  compatibility:
+    minimum_runtime: "0.1.0"
+    supported_specification_series:
+      - "0.x"
+
+content:
+  domains:
+    - weather
+  content_types:
+    - claims
+    - sources
+    - evidence
+    - entities
+    - concepts
+    - relations
+  entry_points:
+    - claims/claims.jsonl
+    - sources/sources.jsonl
+    - evidence/evidence.jsonl
+    - entities/entities.jsonl
+    - concepts/concepts.jsonl
+    - relations/relations.jsonl
+
+languages:
+  primary: en
+  available:
+    - en
+
+licenses:
+  code: Apache-2.0
+  content: CC-BY-4.0
+
+maintainers:
+  - name: Template Maintainer
+    github: Jin-Aladdin
+    role: owner
+
+lifecycle:
+  status: experimental
+  created_at: "2026-07-27T00:00:00Z"
+  updated_at: "2026-07-27T00:00:00Z"
+
+security:
+  declarative_only: true
+  runtime_code: false
+  prompt_injection_reviewed: false

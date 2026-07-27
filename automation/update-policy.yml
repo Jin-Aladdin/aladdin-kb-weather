@@ -1,0 +1,133 @@
+policy_version: "0.1.0"
+
+# Replace every value below. A policy that still carries template values must
+# not be enabled: automation.enabled stays false until a maintainer has
+# reviewed the sources, their licensing and their risk class.
+
+pack:
+  id: aladdin-kb-weather
+
+automation:
+  enabled: true
+  level: propose
+  cadence: weekly
+  failure_mode: keep-last-valid
+  update_mode: pull-request
+  release_mode: manual
+  retry:
+    max_attempts: 3
+    backoff_seconds: 3600
+    failure_threshold: 3
+  quarantine:
+    retain_days: 90
+    max_entries: 100
+    block_source_after_entries: 5
+
+limits:
+  max_run_minutes: 30
+  max_sources_per_run: 20
+  max_download_bytes: 10000000
+  max_total_download_bytes: 100000000
+  max_files: 1000
+  max_artifact_bytes: 50000000
+  max_retries: 3
+  max_api_calls: 500
+  max_parallel_jobs: 1
+  max_language_model_cost_usd: 0
+
+gates:
+  schema_validation: required
+  reference_validation: required
+  security_scan: required
+  license_check: required
+  evaluation_suite: required
+
+sources:
+  - id: source:weather.nws.alert-types
+    adapter: json-api
+    url: https://api.weather.gov/alerts/types
+    allowed_domains:
+      - api.weather.gov
+    allowed_media_types:
+      - application/ld+json
+      - application/json
+    risk_class: low
+    automation_level: propose
+    trust:
+      level: primary
+      notes: >-
+        The agency that issues the warnings publishing its own list of warning
+        types. Primary for that question and nothing beyond it.
+    license:
+      policy: documented
+      expression: LicenseRef-us-government-work
+      url: https://www.weather.gov/disclaimer
+      attribution_required: true
+      excerpts_allowed: true
+      redistribution_allowed: true
+      notes: >-
+        Work of the U.S. federal government, not subject to domestic copyright.
+        Recorded as a LicenseRef because no SPDX identifier describes that status.
+    change_detection:
+      method: mapped-values
+    conditional_requests:
+      enabled: true
+    freshness:
+      max_age_days: 180
+      recheck_after_days: 7
+    limits:
+      max_download_bytes: 500000
+      timeout_seconds: 30
+      connect_timeout_seconds: 10
+      read_timeout_seconds: 30
+      max_redirects: 2
+      max_json_depth: 16
+    retry:
+      max_attempts: 3
+      backoff_seconds: 10
+      respect_retry_after: true
+    mapping:
+      alert_type_count:
+        pointer: /eventTypes
+        type: array
+        required: true
+        item_type: string
+        max_items: 2000
+      first_alert_type:
+        pointer: /eventTypes/0
+        type: string
+        required: true
+        max_length: 200
+    transformation:
+      version: "0.1.0"
+      claim:
+        id: claim:weather.nws.alert-types.001
+        kind: observation
+        confidence: 0.95
+        statement_template: >-
+          The National Weather Service publishes a list of alert types for its
+          public warning products; the first entry in that list is
+          {first_alert_type}.
+      evidence:
+        id: evidence:weather.nws.alert-types.001
+        fields:
+          - first_alert_type
+      entity:
+        id: entity:weather.nws
+
+release:
+  versioning: deterministic
+  require_clean_evaluation: true
+  attestation: required
+  sbom: optional
+
+notifications:
+  on_failure: issue
+  on_quarantine: issue
+  on_release: workflow-summary
+  on_stale_automation: issue
+
+heartbeat:
+  enabled: true
+  cadence: monthly
+  stale_after_days: 45
