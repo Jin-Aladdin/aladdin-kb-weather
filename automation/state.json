@@ -3,16 +3,16 @@
   "pack_id": "aladdin-kb-weather",
   "last_valid_version": "0.1.0",
   "last_run": {
-    "run_id": "30281486842",
-    "started_at": "2026-07-27T15:45:28Z",
-    "finished_at": "2026-07-27T15:45:28Z",
-    "trigger": "workflow_dispatch",
+    "run_id": "35709906747",
+    "started_at": "2026-09-22T09:21:35Z",
+    "finished_at": "2026-09-22T09:21:35Z",
+    "trigger": "schedule",
     "outcome": "no-change"
   },
   "sources": [
     {
       "source_id": "source:weather.nws.alert-types",
-      "last_checked_at": "2026-07-27T15:45:28Z",
+      "last_checked_at": "2026-09-22T09:21:35Z",
       "last_change_at": "2026-07-27T15:19:58Z",
       "content_hash": "sha256:b04067365493a4d53f4b94e2b0fec938173a1ccc0ee98f87c9338bc90fd10fbd",
       "consecutive_failures": 0,
@@ -21,7 +21,7 @@
   ],
   "quarantine": [],
   "counters": {
-    "runs": 2,
+    "runs": 3,
     "candidates": 1,
     "releases": 0,
     "failures": 0
